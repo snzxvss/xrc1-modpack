@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build output
+dist/
+out/
+build/
+
+# Electron
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temp files
+*.tmp
+temp/
+tmp/
+
+# Don't upload actual mods to git (too large)
+# Comment this line if using Git LFS
+mods/*.jar
+
+# Keep the mods folder structure
+!mods/.gitkeep

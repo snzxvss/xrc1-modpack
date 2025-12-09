@@ -1,0 +1,43 @@
+{
+  "minecraftVersion": "1.20.1",
+  "forgeVersion": "1.20.1-47.3.0",
+  "forgeDownloadUrl": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.20.1-47.3.0/forge-1.20.1-47.3.0-installer.jar",
+  "mods": [
+    {
+      "name": "Ad Astra",
+      "fileName": "ad_astra-forge-1.20.1-1.15.20.jar",
+      "downloadUrl": "https://github.com/TU_USUARIO/TU_REPO/releases/download/v1.0.0/ad_astra-forge-1.20.1-1.15.20.jar",
+      "version": "1.15.20",
+      "required": true
+    },
+    {
+      "name": "Alex's Caves",
+      "fileName": "alexscaves-2.0.2.jar",
+      "downloadUrl": "https://github.com/TU_USUARIO/TU_REPO/releases/download/v1.0.0/alexscaves-2.0.2.jar",
+      "version": "2.0.2",
+      "required": true
+    },
+    {
+      "name": "Alex's Mobs",
+      "fileName": "alexsmobs-1.22.9.jar",
+      "downloadUrl": "https://github.com/TU_USUARIO/TU_REPO/releases/download/v1.0.0/alexsmobs-1.22.9.jar",
+      "version": "1.22.9",
+      "required": true
+    },
+    {
+      "name": "Another Furniture",
+      "fileName": "another_furniture-forge-1.20.1-3.0.4.jar",
+      "downloadUrl": "https://github.com/TU_USUARIO/TU_REPO/releases/download/v1.0.0/another_furniture-forge-1.20.1-3.0.4.jar",
+      "version": "3.0.4",
+      "required": true
+    },
+    {
+      "name": "AppleSkin",
+      "fileName": "appleskin-forge-mc1.20.1-2.5.1.jar",
+      "downloadUrl": "https://github.com/TU_USUARIO/TU_REPO/releases/download/v1.0.0/appleskin-forge-mc1.20.1-2.5.1.jar",
+      "version": "2.5.1",
+      "required": true
+    }
+  ],
+  "_comment": "INSTRUCCIONES: Reemplaza 'TU_USUARIO' y 'TU_REPO' con tu información de GitHub. Agrega el resto de mods siguiendo el mismo patrón."
+}

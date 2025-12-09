@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XRC1 Crew - Mod Installer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Fondo animado con copos de nieve -->
+    <div class="snow-container" id="snow-container"></div>
+
+    <!-- Barra de título personalizada -->
+    <div class="titlebar">
+        <div class="titlebar-drag">
+            <img src="../assets/xrc1-logo-small.png" alt="XRC1" class="titlebar-logo">
+            <span class="titlebar-text">XRC1 CREW MOD INSTALLER</span>
+        </div>
+        <div class="titlebar-buttons">
+            <button class="titlebar-button minimize" id="minimize-btn">─</button>
+            <button class="titlebar-button close" id="close-btn">✕</button>
+        </div>
+    </div>
+
+    <!-- Contenedor principal -->
+    <div class="container">
+        <!-- Logo principal -->
+        <div class="header">
+            <img src="../assets/xrc1-logo.png" alt="XRC1 Crew" class="main-logo">
+            <h1 class="glitch" data-text="XRC1 CREW">XRC1 CREW</h1>
+            <p class="subtitle">MINECRAFT MOD PACK INSTALLER</p>
+        </div>
+
+        <!-- Panel de instalación -->
+        <div class="install-panel" id="install-panel">
+            <div class="step" id="step-select">
+                <h2 class="step-title">PASO 1: Selecciona tu carpeta .minecraft</h2>
+                <div class="folder-selector">
+                    <input type="text" id="minecraft-path" placeholder="C:\Users\TuNombre\AppData\Roaming\.minecraft" readonly>
+                    <button class="btn-primary" id="select-folder-btn">
+                        <span>📁 SELECCIONAR CARPETA</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="step hidden" id="step-analyze">
+                <h2 class="step-title">PASO 2: Análisis de Mods</h2>
+                <div class="analysis-panel">
+                    <div class="analysis-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon">✅</div>
+                            <div class="stat-value" id="installed-mods-count">0</div>
+                            <div class="stat-label">Instalados</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📥</div>
+                            <div class="stat-value" id="missing-mods-count">0</div>
+                            <div class="stat-label">Faltantes</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📦</div>
+                            <div class="stat-value" id="total-mods-count">0</div>
+                            <div class="stat-label">Total</div>
+                        </div>
+                    </div>
+
+                    <div class="install-actions">
+                        <button class="btn-primary hidden" id="install-missing-btn">
+                            <span>⚡ INSTALAR FALTANTES</span>
+                        </button>
+                        <button class="btn-primary" id="install-all-btn">
+                            <span>📦 REINSTALAR TODOS</span>
+                        </button>
+                        <button class="btn-primary" id="install-forge-btn">
+                            <span>🔥 DESCARGAR FORGE</span>
+                        </button>
+                        <button class="btn-secondary" id="reanalyze-btn">
+                            <span>🔄 VOLVER A ANALIZAR</span>
+                        </button>
+                    </div>
+
+                    <div class="all-updated-message hidden" id="all-updated-message">
+                        <div class="checkmark-small">✓</div>
+                        <p>¡Todos los mods están actualizados!</p>
+                    </div>
+                </div>
+
+                <div class="console-output" id="console-output"></div>
+            </div>
+
+            <div class="step hidden" id="step-progress">
+                <h2 class="step-title">INSTALANDO...</h2>
+                <div class="progress-container">
+                    <div class="progress-info">
+                        <span id="current-mod">Preparando...</span>
+                        <span id="progress-text">0/98</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                        <div class="progress-glow"></div>
+                    </div>
+                    <div class="progress-percentage" id="progress-percentage">0%</div>
+                </div>
+                <div class="console-output" id="console-output"></div>
+            </div>
+
+            <div class="step hidden" id="step-complete">
+                <div class="success-animation">
+                    <div class="checkmark">✓</div>
+                </div>
+                <h2 class="step-title success-title">¡INSTALACIÓN COMPLETA!</h2>
+                <p class="success-message">Todos los mods han sido instalados correctamente.</p>
+                <div class="success-info">
+                    <p>✅ <span id="installed-count">98</span> mods instalados</p>
+                    <p>📍 Ubicación: <span id="final-path"></span></p>
+                </div>
+                <button class="btn-primary" id="finish-btn">
+                    <span>🎮 CERRAR</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-lights"></div>
+            <p>Made with ❄️ by XRC1 Crew</p>
+        </div>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>
