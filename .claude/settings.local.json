@@ -52,7 +52,12 @@
       "Bash(cat:*)",
       "Bash(powershell.exe -ExecutionPolicy Bypass -File manage-mods.ps1 list)",
       "Bash(powershell.exe -ExecutionPolicy Bypass -File build-release.ps1 -UploadToGitHub)",
-      "Bash(where gh:*)"
+      "Bash(where gh:*)",
+      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" release upload v1.0.0 \"cluttered-.Forge.-3.0.2-1.20.1.jar\" \".1.20.1..SecurityCraft.v1.10.1.jar\" \".1.20.1..Simply.Light.Sources.v1.3.0..Forge..jar\")",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -File generate-mods-metadata.ps1)",
+      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" release delete-asset v1.0.0 \"mods-metadata.json\" --yes)",
+      "Bash(Out-Null)",
+      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" release upload v1.0.0 \"mods-metadata.json\")"
     ]
   }
 }

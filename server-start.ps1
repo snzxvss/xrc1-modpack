@@ -101,8 +101,16 @@ if (-not $NoUpload) {
         Write-Warning "Faltan $($toUpload.Count) mods en GitHub, subiendo..."
         foreach ($mod in $toUpload) {
             $modPath = Join-Path $LOCAL_MODS $mod
+
+            # Verificar si el archivo ya existe con nombre sanitizado
+            $sanitizedName = $mod -replace '[\[\] ]', '.'
+            if ($githubModFiles -contains $sanitizedName) {
+                Write-Host "  [~] Ya existe (con nombre sanitizado): $mod -> $sanitizedName" -ForegroundColor Yellow
+                continue
+            }
+
             Write-Host "  [>] Subiendo: $mod" -ForegroundColor Yellow
-            & $GH_PATH release upload $RELEASE_TAG $modPath
+            & $GH_PATH release upload $RELEASE_TAG "`"$modPath`""
             if ($LASTEXITCODE -eq 0) {
                 Write-Host "  [OK] Subido: $mod" -ForegroundColor Green
             } else {
