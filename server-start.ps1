@@ -6,7 +6,8 @@ param(
 
 $SERVER_PATH = "C:\Users\opc\Desktop\Server-2025-2026"
 $SERVER_MODS = Join-Path $SERVER_PATH "mods"
-$LOCAL_MODS = "mods"
+$PROJECT_PATH = "C:\Users\opc\Downloads\modsTest"
+$LOCAL_MODS = Join-Path $PROJECT_PATH "mods"
 $RELEASE_TAG = "v1.0.0"
 $GH_PATH = "C:\Program Files\GitHub CLI\gh.exe"
 
@@ -21,9 +22,13 @@ Write-Host "  XRC1 Server - Sincronizacion de Mods" -ForegroundColor Cyan
 Write-Host "===============================================================" -ForegroundColor Cyan
 Write-Host ""
 
+# Cambiar al directorio del proyecto para que gh funcione correctamente
+Push-Location $PROJECT_PATH
+
 # 1. Verificar que existe el servidor
 if (-not (Test-Path $SERVER_PATH)) {
     Write-Error "ERROR: No existe el servidor en $SERVER_PATH"
+    Pop-Location
     exit 1
 }
 
@@ -72,6 +77,7 @@ Write-Info "Escaneando mods en GitHub Release..."
 $jsonOutput = & $GH_PATH release view $RELEASE_TAG --json assets 2>&1 | Out-String
 if ($LASTEXITCODE -ne 0) {
     Write-Error "ERROR: No se pudo consultar GitHub Release"
+    Pop-Location
     exit 1
 }
 
@@ -127,6 +133,9 @@ Write-Host "  Mods en servidor: $($serverModFiles.Count)"
 Write-Host "  Mods en proyecto: $($localModFiles.Count + $copiedCount)"
 Write-Host "  Mods en GitHub: $($githubModFiles.Count)"
 Write-Host ""
+
+# Volver al directorio original
+Pop-Location
 
 # 7. Iniciar servidor (si no es solo sync)
 if (-not $OnlySync) {
