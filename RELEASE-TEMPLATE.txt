@@ -1,0 +1,19 @@
+## XRC1 Crew Mod Installer
+
+Instalador automatizado de mods para el servidor de Minecraft XRC1 Crew (v1.20.1).
+Descarga e instala todos los mods necesarios para conectarte al servidor sin complicaciones.
+Incluye instalador de Forge y deteccion automatica de mods faltantes.
+
+---
+
+### Novedades v{VERSION}
+
+- **Arreglado:** Boton de minimizar ahora funciona correctamente
+- **Arreglado:** Error al cancelar actualizacion ya no causa excepciones
+- **Mejorado:** Sistema de herramientas con menus interactivos (.bat)
+- **Agregado:** Plantilla editable para releases con actualizacion automatica
+- **Mejorado:** Gestion de mods con soporte para rutas absolutas y relativas
+
+---
+
+**Descarga:** [XRC1-Mod-Installer-v{VERSION}.exe](https://github.com/snzxvss/xrc1-modpack/releases/download/installer/XRC1-Mod-Installer-v{VERSION}.exe)

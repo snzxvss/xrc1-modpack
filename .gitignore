@@ -8,6 +8,7 @@ yarn-error.log*
 dist/
 out/
 build/
+releases/
 
 # Electron
 *.log

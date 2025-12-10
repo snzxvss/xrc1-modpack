@@ -1,210 +1,213 @@
-# 🎮 XRC1 Crew - Mod Installer
+# XRC1 Crew Mod Installer
 
-<div align="center">
-
-![XRC1 Crew Logo](unnamed.jpg)
-
-**Instalador oficial del Modpack XRC1 para Minecraft 1.20.1**
-
-[⬇️ Descargar Instalador](#-descarga) • [📖 Cómo Usar](#-c%C3%B3mo-usar) • [❓ Ayuda](#-preguntas-frecuentes)
-
-</div>
+Instalador automatico de mods para el servidor de Minecraft **XRC1 Crew** (v1.20.1).
 
 ---
 
-## 🎯 ¿Qué es esto?
+## Descarga
 
-El **XRC1 Mod Installer** es una aplicación que instala automáticamente todos los mods del crew XRC1 en tu Minecraft.
+**[Descargar instalador](https://github.com/snzxvss/xrc1-modpack/releases/latest)**
 
-### ✨ Características
-
-- ⚡ **Instalación automática** - Solo selecciona tu carpeta y listo
-- 🔄 **Actualización inteligente** - Detecta qué mods te faltan y descarga solo esos
-- 📦 **98 mods incluidos** - Todo el modpack del servidor XRC1
-- 🔥 **Descarga de Forge** - Incluye el instalador de Forge 1.20.1
-- 🎨 **Interfaz moderna** - Diseño exclusivo con temática XRC1
-- 🌐 **Siempre actualizado** - Se conecta automáticamente a GitHub para obtener los últimos mods
+Descarga `XRC1-Mod-Installer-vX.X.X.exe` y ejecutalo.
 
 ---
 
-## ⬇️ Descarga
+## Caracteristicas
 
-### [📥 Descargar XRC1 Mod Installer v1.0.0](https://github.com/TU_USUARIO/TU_REPO/releases/latest)
-
-**Requisitos:**
-- Windows 10/11
-- Minecraft Java Edition instalado
-- Conexión a Internet
-
----
-
-## 📖 Cómo Usar
-
-### 1️⃣ Descarga e Instala
-
-1. Descarga `XRC1-Mod-Installer-Setup.exe` desde el enlace de arriba
-2. Ejecuta el instalador
-3. Si Windows SmartScreen aparece, haz clic en "Más información" → "Ejecutar de todas formas"
-4. Sigue el asistente de instalación
-
-### 2️⃣ Ejecuta el Instalador
-
-1. Abre **XRC1 Mod Installer** desde el escritorio o menú inicio
-2. La aplicación se abrirá con una interfaz moderna de XRC1
-
-### 3️⃣ Selecciona tu Carpeta de Minecraft
-
-1. Haz clic en **"📁 SELECCIONAR CARPETA"**
-2. Navega a tu carpeta `.minecraft`:
-   - **Ubicación típica:** `C:\Users\TuNombre\AppData\Roaming\.minecraft`
-   - **Tip:** Presiona `Windows + R`, escribe `%appdata%\.minecraft` y Enter
-3. Selecciona la carpeta
-
-### 4️⃣ Analiza tus Mods
-
-El instalador automáticamente:
-- ✅ Detecta cuántos mods ya tienes instalados
-- 📥 Identifica cuáles te faltan
-- 📊 Te muestra un resumen completo
-
-### 5️⃣ Instala los Mods
-
-**Si ya tienes algunos mods:**
-- Haz clic en **"⚡ INSTALAR FALTANTES"** para descargar solo los que te faltan
-
-**Si quieres reinstalar todo:**
-- Haz clic en **"📦 REINSTALAR TODOS"** para descargar todos los mods desde cero
-
-**Para Forge:**
-- Haz clic en **"🔥 DESCARGAR FORGE"**
-- Ejecuta el instalador de Forge que se descargó
-- Selecciona "Install client" y sigue el asistente
-
-### 6️⃣ ¡Juega!
-
-1. Abre Minecraft Launcher
-2. Selecciona el perfil **"forge-1.20.1-47.3.0"**
-3. Haz clic en **Jugar**
-4. ¡Disfruta del modpack XRC1!
+- **Instalacion automatica** de 97 mods del servidor
+- **Descarga de Forge** 1.20.1-47.3.0 incluida
+- **Deteccion inteligente** de mods ya instalados
+- **Auto-actualizacion** del instalador
+- **Interfaz premium** con diseno glassmorphism
+- **100% portatil** - un solo archivo ejecutable (~9MB)
 
 ---
 
-## 🔄 Actualizar Mods
+## Como usar
 
-Cuando agreguemos mods nuevos al servidor:
-
-1. Abre el **XRC1 Mod Installer** de nuevo
-2. Selecciona tu carpeta `.minecraft`
-3. El instalador detectará automáticamente los mods nuevos
-4. Haz clic en **"⚡ INSTALAR FALTANTES"**
-5. Solo descargará los mods que te falten
-
-**¡Así de fácil!** No necesitas descargar nada manualmente.
+1. **Descarga** el instalador desde el link de arriba
+2. **Ejecuta** `XRC1-Mod-Installer.exe`
+3. **Selecciona** tu carpeta `.minecraft` (normalmente en `%appdata%\.minecraft`)
+4. El instalador **detecta** automaticamente que mods te faltan
+5. **Haz clic** en "Instalar mods faltantes"
+6. **Opcional:** Descarga e instala Forge desde el mismo instalador
+7. **Listo!** Abre Minecraft y conectate al servidor
 
 ---
 
-## ❓ Preguntas Frecuentes
+## Encontrar tu carpeta .minecraft
 
-### ¿Dónde está mi carpeta .minecraft?
-
-La ubicación estándar es:
-```
-C:\Users\TuNombre\AppData\Roaming\.minecraft
-```
-
-**Método rápido:**
+**Metodo rapido:**
 1. Presiona `Windows + R`
 2. Escribe: `%appdata%\.minecraft`
 3. Presiona Enter
+4. Usa esa carpeta en el instalador
 
-### ¿Necesito descargar los mods manualmente?
+---
 
-**No.** El instalador descarga todo automáticamente desde GitHub.
+## Requisitos
 
-### ¿Puedo usar esto si ya tengo mods instalados?
+- Windows 7/8/10/11
+- Minecraft Java Edition 1.20.1
+- Al menos 100MB de espacio libre
+- Conexion a Internet
 
-**Sí.** El instalador detecta qué mods ya tienes y solo descarga los que faltan.
+---
 
-### ¿Se actualizan los mods automáticamente?
+## Servidor
 
-Cada vez que abras el instalador, se conecta a GitHub para verificar la lista actualizada de mods.
+**Version de Minecraft:** 1.20.1
+**Forge:** 1.20.1-47.3.0
+**Total de mods:** 97
 
-### Windows Defender bloqueó el instalador
+---
+
+## Actualizar mods
+
+Cuando se agreguen mods nuevos al servidor:
+
+1. Abre el instalador de nuevo
+2. Selecciona tu carpeta `.minecraft`
+3. El instalador detectara los mods nuevos automaticamente
+4. Haz clic en "Instalar mods faltantes"
+
+---
+
+## Preguntas frecuentes
+
+### Windows Defender bloqueo el instalador
 
 Esto es normal para aplicaciones nuevas:
-1. Haz clic en "Más información"
+1. Haz clic en "Mas informacion"
 2. Haz clic en "Ejecutar de todas formas"
-3. El instalador es seguro, está creado por el XRC1 Crew
+3. El instalador es seguro, creado por XRC1 Crew
 
-### ¿Qué hacer si falla la descarga de un mod?
+### Fallo la descarga de un mod
 
-1. Verifica tu conexión a Internet
-2. Haz clic en **"🔄 VOLVER A ANALIZAR"**
+1. Verifica tu conexion a Internet
+2. Haz clic en "Volver a analizar"
 3. Intenta instalar de nuevo
-4. Si persiste, contacta al crew en Discord
+4. Si persiste, revisa `installer.log` para mas detalles
 
-### ¿Puedo usar el instalador sin conexión?
+### Puedo usar esto si ya tengo mods
 
-**No.** El instalador necesita Internet para:
-- Obtener la lista de mods desde GitHub
-- Descargar los archivos .jar
-
-### ¿Funciona en Mac o Linux?
-
-Por ahora solo Windows. Estamos trabajando en versiones para otros sistemas.
-
-### ¿Los mods son compatibles entre sí?
-
-**Sí.** Todos los mods han sido probados y funcionan juntos en el servidor XRC1.
+Si. El instalador detecta que mods ya tienes y solo descarga los que faltan.
 
 ---
 
-## 🎮 Lista de Mods Incluidos
+## Lista de Mods (97 mods)
 
-El modpack incluye **98 mods** cuidadosamente seleccionados:
+<details>
+<summary>Ver lista completa</summary>
 
-- **Exploración:** Alex's Caves, Alex's Mobs, Ad Astra, Twilight Forest
-- **Construcción:** Create, Chiseled and Bits, Another Furniture, CFM
-- **Decoración:** Supplementaries, Cluttered, Chimes, Bells & Whistles
-- **Optimización:** Embeddium, Oculus, FerriteCore, ModernFix
-- **Calidad de vida:** JEI, JourneyMap, AppleSkin, Carry On
-- **Generación:** Terralith, Tectonic, Better End Cities
-- **Aventura:** Deeper Darker, Cataclysm, Boss es Rise
-- **Y muchos más...**
+- Ad Astra
+- Alex's Caves
+- Alex's Mobs
+- Another Furniture
+- AppleSkin
+- Architectury API
+- Athena
+- Balm
+- Bells and Whistles
+- Better End Cities
+- BF End Cities
+- Blast from the Past
+- Bosses Rise
+- Botarium
+- Carry On
+- CFM (MrCrayfish's Furniture Mod)
+- Chimes
+- Chipped
+- Chisels and Bits
+- Christmas Festivity
+- Chunky
+- Citadel
+- Cloth Config API
+- Connected Glass
+- CorOUtil
+- Corpse
+- Create
+- Create Threaded Trains
+- Create Compatible Storage
+- CullLess Leaves
+- Curios API
+- Deeper and Darker
+- Diagonal Fences
+- Easy Magic
+- Elysium API
+- Embeddium
+- FastBoot
+- FD Bosses
+- FD Lib
+- Ferrite Core
+- Framed Blocks
+- Fusion
+- GeckoLib
+- Glitch Core
+- ImmediatelyFast
+- Inventory Sorter
+- Jade
+- Jaden's Nether Expansion
+- JEI (Just Enough Items)
+- JourneyMap
+- Kotlin for Forge
+- Let's Do: Bakery
+- Let's Do: Farm and Charm
+- Lionfish API
+- Lithostitched
+- LS Core
+- LS Furniture
+- L_Ender's Cataclysm
+- Macaw's Bridges
+- Macaw's Fences
+- Macaw's Windows
+- ModernFix
+- Mofus Broken Constellation
+- Moonlight Lib
+- Not Enough Recipe Book
+- OctoLib
+- Oculus
+- Patchouli
+- Pretty Rain
+- Puzzles Lib
+- Radium
+- Redeco
+- Resourceful Config
+- Serene Seasons
+- Snowy Spirit
+- Sophisticated Backpacks
+- Sophisticated Core
+- SuperMartijn642's Core Lib
+- Supplementaries
+- Swashbucklers
+- Tectonic
+- TerraBlender
+- Terralith
+- Trash Slot
+- True Ending
+- Twilight Forest
+- Underground Rivers
+- Unusual Furniture
+- Vanilla Plus Tools
+- Voice Chat
+- Watut
+- WorldEdit
+- Yung's API
+- Yung's Better End Island
+
+</details>
 
 ---
 
-## 🆘 Soporte
+## Soporte
 
-¿Necesitas ayuda?
-
-- 💬 **Discord:** [discord.gg/xrc1crew](https://discord.gg/xrc1crew)
-- 🐛 **Reportar problema:** [GitHub Issues](https://github.com/TU_USUARIO/TU_REPO/issues)
-- 📺 **YouTube:** [youtube.com/@xrc1crew](https://youtube.com/@xrc1crew)
+**GitHub:** [snzxvss/xrc1-modpack](https://github.com/snzxvss/xrc1-modpack)
+**Reportar problema:** [GitHub Issues](https://github.com/snzxvss/xrc1-modpack/issues)
 
 ---
 
-## 📜 Versión
-
-**Versión actual:** 1.0.0
-**Minecraft:** 1.20.1
-**Forge:** 1.20.1-47.3.0
-**Total de mods:** 98
+**Nota:** Este instalador descarga los mods directamente desde GitHub Release cuando lo ejecutas. Los archivos .jar NO estan incluidos en el repositorio.
 
 ---
 
-## ⚠️ Nota Importante
-
-Este instalador descarga mods desde nuestro repositorio de GitHub. Todos los mods son obtenidos de sus fuentes oficiales y redistribuidos con permiso según sus licencias.
-
----
-
-<div align="center">
-
-**Made with ❄️ by XRC1 Crew**
-
-[🌐 Website](https://xrc1crew.com) • [💬 Discord](https://discord.gg/xrc1) • [📺 YouTube](https://youtube.com/@xrc1crew)
-
-© 2024 XRC1 Crew. Todos los derechos reservados.
-
-</div>
+**Made by XRC1 Crew**

@@ -1,0 +1,477 @@
+﻿// Prevents additional console window on Windows in release, DO NOT REMOVE!!
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
+use serde::{Deserialize, Serialize};
+use std::fs;
+use std::fs::OpenOptions;
+use std::io::Write;
+use std::path::PathBuf;
+use tauri::api::dialog::FileDialogBuilder;
+use reqwest::blocking::Client;
+
+#[cfg(target_os = "windows")]
+use std::os::windows::process::CommandExt;
+
+// FunciÃ³n para escribir en el log
+fn write_log(message: &str) {
+    let exe_path = std::env::current_exe().ok();
+    if let Some(exe_dir) = exe_path.and_then(|p| p.parent().map(|p| p.to_path_buf())) {
+        let log_path = exe_dir.join("installer.log");
+        if let Ok(mut file) = OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(log_path)
+        {
+            let timestamp = chrono::Local::now().format("%Y-%m-%d %H:%M:%S");
+            let _ = writeln!(file, "[{}] {}", timestamp, message);
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+struct ModInfo {
+    name: String,
+    #[serde(rename = "fileName")]
+    file_name: String,
+    #[serde(rename = "downloadUrl")]
+    download_url: String,
+    version: String,
+    required: bool,
+}
+
+#[derive(Debug, Deserialize)]
+struct GitHubAsset {
+    name: String,
+    browser_download_url: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct GitHubRelease {
+    tag_name: String,
+    assets: Vec<GitHubAsset>,
+}
+
+// ConfiguraciÃ³n hardcodeada (no necesita archivo externo)
+const MINECRAFT_VERSION: &str = "1.20.1";
+const FORGE_VERSION: &str = "1.20.1-47.3.0";
+const FORGE_DOWNLOAD_URL: &str = "https://maven.minecraftforge.net/net/minecraftforge/forge/1.20.1-47.3.0/forge-1.20.1-47.3.0-installer.jar";
+const GITHUB_REPO: &str = "snzxvss/xrc1-modpack";
+const MODS_RELEASE_TAG: &str = "v1.0.0";
+const INSTALLER_RELEASE_TAG: &str = "installer";
+const CURRENT_VERSION: &str = "1.0.6";
+
+#[derive(Debug, Serialize)]
+struct UpdateInfo {
+    available: bool,
+    current_version: String,
+    latest_version: String,
+    download_url: String,
+}
+
+#[derive(Debug, Serialize)]
+struct ModAnalysis {
+    installed: usize,
+    missing: usize,
+    total: usize,
+    installed_list: Vec<ModInfo>,
+    missing_list: Vec<ModInfo>,
+    all_mods: Vec<ModInfo>,
+}
+
+#[tauri::command]
+fn get_version() -> String {
+    CURRENT_VERSION.to_string()
+}
+
+#[tauri::command]
+async fn select_minecraft_folder() -> Result<String, String> {
+    write_log("Iniciando selección de carpeta .minecraft");
+    let (tx, rx) = std::sync::mpsc::channel();
+
+    FileDialogBuilder::new()
+        .set_title("Selecciona tu carpeta .minecraft")
+        .pick_folder(move |folder_path| {
+            tx.send(folder_path).ok();
+        });
+
+    match rx.recv() {
+        Ok(Some(path)) => {
+            let path_str = path.to_string_lossy().to_string();
+            write_log(&format!("Carpeta seleccionada: {}", path_str));
+            Ok(path_str)
+        },
+        Ok(None) => {
+            write_log("ERROR: No se seleccionÃ³ carpeta");
+            Err("No se seleccionÃ³ carpeta".to_string())
+        },
+        Err(e) => {
+            write_log(&format!("ERROR: Error al recibir respuesta: {:?}", e));
+            Err("Error al recibir respuesta".to_string())
+        },
+    }
+}
+
+#[tauri::command]
+async fn analyze_mods(minecraft_path: String) -> Result<ModAnalysis, String> {
+    write_log(&format!("Analizando mods en: {}", minecraft_path));
+
+    // Obtener mods dinÃ¡micamente desde GitHub
+    write_log(&format!("Obteniendo lista de mods desde GitHub: {}/releases/tag/{}", GITHUB_REPO, MODS_RELEASE_TAG));
+    let client = Client::new();
+    let github_api_url = format!(
+        "https://api.github.com/repos/{}/releases/tags/{}",
+        GITHUB_REPO, MODS_RELEASE_TAG
+    );
+
+    let release: GitHubRelease = client
+        .get(&github_api_url)
+        .header("User-Agent", "XRC1-Mod-Installer")
+        .send()
+        .map_err(|e| {
+            write_log(&format!("ERROR: Error consultando GitHub API: {}", e));
+            format!("Error consultando GitHub API: {}", e)
+        })?
+        .json()
+        .map_err(|e| {
+            write_log(&format!("ERROR: Error parseando respuesta de GitHub: {}", e));
+            format!("Error parseando respuesta de GitHub: {}", e)
+        })?;
+
+    // Convertir assets de GitHub a lista de mods
+    let all_mods: Vec<ModInfo> = release
+        .assets
+        .iter()
+        .filter(|asset| asset.name.ends_with(".jar"))
+        .map(|asset| ModInfo {
+            name: asset.name.trim_end_matches(".jar").to_string(),
+            file_name: asset.name.clone(),
+            download_url: asset.browser_download_url.clone(),
+            version: release.tag_name.clone(),
+            required: true,
+        })
+        .collect();
+
+    write_log(&format!("Se encontraron {} mods en GitHub", all_mods.len()));
+
+    // Verificar carpeta mods
+    let mods_folder = PathBuf::from(&minecraft_path).join("mods");
+
+    if !mods_folder.exists() {
+        write_log(&format!("Creando carpeta mods: {:?}", mods_folder));
+        fs::create_dir_all(&mods_folder)
+            .map_err(|e| {
+                write_log(&format!("ERROR: Error creando carpeta mods: {}", e));
+                format!("Error creando carpeta mods: {}", e)
+            })?;
+    }
+
+    // Listar archivos instalados
+    let installed_files: Vec<String> = fs::read_dir(&mods_folder)
+        .map_err(|e| {
+            write_log(&format!("ERROR: Error leyendo carpeta mods: {}", e));
+            format!("Error leyendo carpeta mods: {}", e)
+        })?
+        .filter_map(|entry| {
+            entry.ok().and_then(|e| {
+                e.file_name().to_str().map(|s| s.to_string())
+            })
+        })
+        .collect();
+
+    // Clasificar mods
+    let mut installed_list = Vec::new();
+    let mut missing_list = Vec::new();
+
+    for mod_info in &all_mods {
+        if installed_files.contains(&mod_info.file_name) {
+            installed_list.push(mod_info.clone());
+        } else {
+            missing_list.push(mod_info.clone());
+        }
+    }
+
+    write_log(&format!("AnÃ¡lisis completo: {} instalados, {} faltantes de {} totales",
+        installed_list.len(), missing_list.len(), all_mods.len()));
+
+    Ok(ModAnalysis {
+        installed: installed_list.len(),
+        missing: missing_list.len(),
+        total: all_mods.len(),
+        installed_list,
+        missing_list,
+        all_mods,
+    })
+}
+
+#[tauri::command]
+async fn download_mod(mod_info: ModInfo, minecraft_path: String) -> Result<(), String> {
+    write_log(&format!("Descargando mod: {} desde {}", mod_info.name, mod_info.download_url));
+
+    let mods_folder = PathBuf::from(&minecraft_path).join("mods");
+    let file_path = mods_folder.join(&mod_info.file_name);
+
+    // Descargar archivo
+    let response = reqwest::blocking::get(&mod_info.download_url)
+        .map_err(|e| {
+            write_log(&format!("ERROR: Error descargando {}: {}", mod_info.name, e));
+            format!("Error descargando {}: {}", mod_info.name, e)
+        })?;
+
+    if !response.status().is_success() {
+        let error_msg = format!("Error HTTP {}: {}", response.status(), mod_info.name);
+        write_log(&format!("ERROR: {}", error_msg));
+        return Err(error_msg);
+    }
+
+    let bytes = response.bytes()
+        .map_err(|e| {
+            write_log(&format!("ERROR: Error obteniendo bytes de {}: {}", mod_info.name, e));
+            format!("Error obteniendo bytes de {}: {}", mod_info.name, e)
+        })?;
+
+    fs::write(&file_path, &bytes)
+        .map_err(|e| {
+            write_log(&format!("ERROR: Error guardando {}: {}", mod_info.name, e));
+            format!("Error guardando {}: {}", mod_info.name, e)
+        })?;
+
+    write_log(&format!("âœ“ Mod instalado exitosamente: {} ({} bytes)", mod_info.name, bytes.len()));
+    Ok(())
+}
+
+#[tauri::command]
+async fn download_forge() -> Result<String, String> {
+    write_log("Iniciando descarga de Forge");
+
+    // Descargar a Downloads
+    let downloads_folder = dirs::download_dir()
+        .ok_or_else(|| {
+            write_log("ERROR: No se pudo obtener carpeta Downloads");
+            "No se pudo obtener carpeta Downloads".to_string()
+        })?;
+
+    let forge_filename = format!("forge-{}-installer.jar", FORGE_VERSION);
+    let forge_path = downloads_folder.join(&forge_filename);
+
+    write_log(&format!("Descargando Forge {} desde {}", FORGE_VERSION, FORGE_DOWNLOAD_URL));
+
+    let response = reqwest::blocking::get(FORGE_DOWNLOAD_URL)
+        .map_err(|e| {
+            write_log(&format!("ERROR: Error descargando Forge: {}", e));
+            format!("Error descargando Forge: {}", e)
+        })?;
+
+    if !response.status().is_success() {
+        let error_msg = format!("Error HTTP {}", response.status());
+        write_log(&format!("ERROR: {}", error_msg));
+        return Err(error_msg);
+    }
+
+    let bytes = response.bytes()
+        .map_err(|e| {
+            write_log(&format!("ERROR: Error obteniendo bytes: {}", e));
+            format!("Error obteniendo bytes: {}", e)
+        })?;
+
+    fs::write(&forge_path, bytes)
+        .map_err(|e| {
+            write_log(&format!("ERROR: Error guardando Forge: {}", e));
+            format!("Error guardando Forge: {}", e)
+        })?;
+
+    let result_path = forge_path.to_string_lossy().to_string();
+    write_log(&format!("✓ Forge descargado exitosamente en: {}", result_path));
+
+    // Abrir el instalador de Forge automáticamente
+    write_log("Abriendo instalador de Forge...");
+    std::process::Command::new("cmd")
+        .args(&["/C", "start", "", forge_path.to_str().unwrap()])
+        .spawn()
+        .map_err(|e| {
+            write_log(&format!("ERROR: Error abriendo Forge: {}", e));
+            format!("Error abriendo Forge: {}", e)
+        })?;
+
+    write_log("✓ Instalador de Forge abierto");
+    Ok(result_path)
+}
+
+#[tauri::command]
+async fn check_updates() -> Result<UpdateInfo, String> {
+    write_log("Verificando actualizaciones del instalador");
+
+    let client = Client::new();
+    let github_api_url = format!(
+        "https://api.github.com/repos/{}/releases/tags/{}",
+        GITHUB_REPO, INSTALLER_RELEASE_TAG
+    );
+
+    let release: GitHubRelease = client
+        .get(&github_api_url)
+        .header("User-Agent", "XRC1-Mod-Installer")
+        .send()
+        .map_err(|e| {
+            write_log(&format!("ERROR: Error consultando actualizaciones: {}", e));
+            format!("Error consultando actualizaciones: {}", e)
+        })?
+        .json()
+        .map_err(|e| {
+            write_log(&format!("ERROR: Error parseando respuesta de actualizaciones: {}", e));
+            format!("Error parseando respuesta de actualizaciones: {}", e)
+        })?;
+
+    // Buscar el .exe en los assets
+    let exe_asset = release
+        .assets
+        .iter()
+        .find(|asset| asset.name.ends_with(".exe"))
+        .ok_or_else(|| {
+            write_log("ERROR: No se encontrÃ³ .exe en el release");
+            "No se encontrÃ³ .exe en el release".to_string()
+        })?;
+
+    // Extraer versiÃ³n del nombre del asset (ej: "XRC1-Mod-Installer-v1.0.1.exe")
+    // Si no tiene versiÃ³n en el nombre, usar el tag del release
+    let latest_version = if exe_asset.name.contains("-v") {
+        exe_asset.name
+            .split("-v")
+            .nth(1)
+            .and_then(|s| s.strip_suffix(".exe"))
+            .unwrap_or("1.0.0")
+    } else {
+        CURRENT_VERSION // Si no hay versiÃ³n en el nombre, asumir que es la misma
+    };
+
+    write_log(&format!("DEBUG: Nombre del asset en GitHub: '{}'", exe_asset.name));
+    write_log(&format!("DEBUG: VersiÃ³n extraÃ­da del asset: '{}'", latest_version));
+    write_log(&format!("DEBUG: VersiÃ³n actual (CURRENT_VERSION): '{}'", CURRENT_VERSION));
+
+    let available = latest_version != CURRENT_VERSION;
+
+    if available {
+        write_log(&format!("Nueva versiÃ³n disponible: {} (actual: {})", latest_version, CURRENT_VERSION));
+    } else {
+        write_log("El instalador estÃ¡ actualizado");
+    }
+
+    Ok(UpdateInfo {
+        available,
+        current_version: CURRENT_VERSION.to_string(),
+        latest_version: latest_version.to_string(),
+        download_url: exe_asset.browser_download_url.clone(),
+    })
+}
+
+#[tauri::command]
+async fn download_update(download_url: String) -> Result<String, String> {
+    write_log("========================================");
+    write_log("INICIANDO PROCESO DE ACTUALIZACIÃ“N");
+    write_log("Usuario confirmÃ³ la actualizaciÃ³n");
+    write_log(&format!("Descargando actualizaciÃ³n desde: {}", download_url));
+
+    let exe_path = std::env::current_exe()
+        .map_err(|e| {
+            write_log(&format!("ERROR: Error obteniendo ruta del ejecutable: {}", e));
+            format!("Error obteniendo ruta del ejecutable: {}", e)
+        })?;
+
+    let exe_dir = exe_path.parent()
+        .ok_or_else(|| {
+            write_log("ERROR: No se pudo obtener directorio padre");
+            "No se pudo obtener directorio padre".to_string()
+        })?;
+
+    let exe_name = exe_path.file_name()
+        .ok_or_else(|| {
+            write_log("ERROR: No se pudo obtener nombre del ejecutable");
+            "No se pudo obtener nombre del ejecutable".to_string()
+        })?
+        .to_string_lossy()
+        .to_string();
+
+    let new_exe_path = exe_dir.join("update-temp.exe");
+
+    // Descargar nuevo .exe
+    write_log("Descargando archivo de actualizaciÃ³n...");
+    let response = reqwest::blocking::get(&download_url)
+        .map_err(|e| {
+            write_log(&format!("ERROR: Error descargando actualizaciÃ³n: {}", e));
+            format!("Error descargando actualizaciÃ³n: {}", e)
+        })?;
+
+    if !response.status().is_success() {
+        let error_msg = format!("Error HTTP {}", response.status());
+        write_log(&format!("ERROR: {}", error_msg));
+        return Err(error_msg);
+    }
+
+    let bytes = response.bytes()
+        .map_err(|e| {
+            write_log(&format!("ERROR: Error obteniendo bytes: {}", e));
+            format!("Error obteniendo bytes: {}", e)
+        })?;
+
+    fs::write(&new_exe_path, bytes)
+        .map_err(|e| {
+            write_log(&format!("ERROR: Error guardando actualizaciÃ³n: {}", e));
+            format!("Error guardando actualizaciÃ³n: {}", e)
+        })?;
+
+    write_log("ActualizaciÃ³n descargada, creando script de actualizaciÃ³n...");
+
+    // Crear script batch para reemplazar el ejecutable
+    let batch_path = exe_dir.join("update.bat");
+    let old_exe_path = exe_dir.join(&exe_name);
+    let temp_exe_path = exe_dir.join("update-temp.exe");
+
+    let batch_content = format!(
+        "@echo off\r\n\
+        timeout /t 2 /nobreak >nul\r\n\
+        del /f /q \"{}\"\r\n\
+        move /y \"{}\" \"{}\"\r\n\
+        start \"\" \"{}\"\r\n\
+        del /f /q \"%~f0\"\r\n",
+        old_exe_path.display(),
+        temp_exe_path.display(),
+        old_exe_path.display(),
+        old_exe_path.display()
+    );
+
+    fs::write(&batch_path, batch_content)
+        .map_err(|e| {
+            write_log(&format!("ERROR: Error creando script de actualizaciÃ³n: {}", e));
+            format!("Error creando script de actualizaciÃ³n: {}", e)
+        })?;
+
+    write_log("âœ“ ActualizaciÃ³n lista. Ejecutando script de reemplazo...");
+
+    // Ejecutar el batch OCULTO y cerrar la aplicaciÃ³n actual
+    std::process::Command::new("cmd")
+        .args(&["/C", "start", "/MIN", "cmd", "/C", batch_path.to_str().unwrap()])
+        .current_dir(exe_dir)
+        .creation_flags(0x08000000) // CREATE_NO_WINDOW
+        .spawn()
+        .map_err(|e| {
+            write_log(&format!("ERROR: Error ejecutando script de actualizaciÃ³n: {}", e));
+            format!("Error ejecutando script de actualizaciÃ³n: {}", e)
+        })?;
+
+    write_log("Script de actualizaciÃ³n iniciado. Cerrando aplicaciÃ³n...");
+
+    Ok("La aplicaciÃ³n se cerrarÃ¡ y se actualizarÃ¡ automÃ¡ticamente".to_string())
+}
+
+fn main() {
+    tauri::Builder::default()
+        .invoke_handler(tauri::generate_handler![
+            get_version,
+            select_minecraft_folder,
+            analyze_mods,
+            download_mod,
+            download_forge,
+            check_updates,
+            download_update
+        ])
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
+}
