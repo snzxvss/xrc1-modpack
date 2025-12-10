@@ -51,7 +51,8 @@
       "Bash(powershell.exe -ExecutionPolicy Bypass -File build-release.ps1)",
       "Bash(cat:*)",
       "Bash(powershell.exe -ExecutionPolicy Bypass -File manage-mods.ps1 list)",
-      "Bash(powershell.exe -ExecutionPolicy Bypass -File build-release.ps1 -UploadToGitHub)"
+      "Bash(powershell.exe -ExecutionPolicy Bypass -File build-release.ps1 -UploadToGitHub)",
+      "Bash(where gh:*)"
     ]
   }
 }

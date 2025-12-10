@@ -8,6 +8,7 @@ $SERVER_PATH = "C:\Users\opc\Desktop\Server-2025-2026"
 $SERVER_MODS = Join-Path $SERVER_PATH "mods"
 $LOCAL_MODS = "mods"
 $RELEASE_TAG = "v1.0.0"
+$GH_PATH = "C:\Program Files\GitHub CLI\gh.exe"
 
 function Write-Info { param($msg) Write-Host $msg -ForegroundColor Cyan }
 function Write-Success { param($msg) Write-Host $msg -ForegroundColor Green }
@@ -68,7 +69,7 @@ if ($copiedCount -eq 0) {
 
 # 5. Escanear mods en GitHub
 Write-Info "Escaneando mods en GitHub Release..."
-$jsonOutput = gh release view $RELEASE_TAG --json assets 2>&1 | Out-String
+$jsonOutput = & $GH_PATH release view $RELEASE_TAG --json assets 2>&1 | Out-String
 if ($LASTEXITCODE -ne 0) {
     Write-Error "ERROR: No se pudo consultar GitHub Release"
     exit 1
@@ -95,7 +96,7 @@ if (-not $NoUpload) {
         foreach ($mod in $toUpload) {
             $modPath = Join-Path $LOCAL_MODS $mod
             Write-Host "  [>] Subiendo: $mod" -ForegroundColor Yellow
-            gh release upload $RELEASE_TAG $modPath
+            & $GH_PATH release upload $RELEASE_TAG $modPath
             if ($LASTEXITCODE -eq 0) {
                 Write-Host "  [OK] Subido: $mod" -ForegroundColor Green
             } else {
@@ -108,8 +109,8 @@ if (-not $NoUpload) {
         & powershell.exe -ExecutionPolicy Bypass -File generate-mods-metadata.ps1 | Out-Null
 
         # Subir metadata actualizado
-        gh release delete-asset $RELEASE_TAG "mods-metadata.json" --yes 2>&1 | Out-Null
-        gh release upload $RELEASE_TAG "mods-metadata.json"
+        & $GH_PATH release delete-asset $RELEASE_TAG "mods-metadata.json" --yes 2>&1 | Out-Null
+        & $GH_PATH release upload $RELEASE_TAG "mods-metadata.json"
         Write-Success "Metadata actualizado"
     }
 } else {
