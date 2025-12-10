@@ -201,8 +201,7 @@ Si. El instalador detecta que mods ya tienes y solo descarga los que faltan.
 
 ## Soporte
 
-**GitHub:** [snzxvss/xrc1-modpack](https://github.com/snzxvss/xrc1-modpack)
-**Reportar problema:** [GitHub Issues](https://github.com/snzxvss/xrc1-modpack/issues)
+**Discord:** https://discord.gg/FG8BrvAFnp
 
 ---
 
