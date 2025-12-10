@@ -37,6 +37,33 @@ struct ModInfo {
     download_url: String,
     version: String,
     required: bool,
+    #[serde(default = "default_side")]
+    side: String, // "client", "server", "both"
+}
+
+fn default_side() -> String {
+    "both".to_string()
+}
+
+#[derive(Debug, Deserialize)]
+struct ModMetadata {
+    filename: String,
+    side: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct ModsConfig {
+    #[serde(rename = "minecraftVersion")]
+    minecraft_version: String,
+    #[serde(rename = "forgeVersion")]
+    forge_version: String,
+    #[serde(rename = "forgeDownloadUrl")]
+    forge_download_url: String,
+    #[serde(rename = "githubRepo")]
+    github_repo: String,
+    #[serde(rename = "releaseTag")]
+    release_tag: String,
+    mods: Vec<ModMetadata>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -58,7 +85,7 @@ const FORGE_DOWNLOAD_URL: &str = "https://maven.minecraftforge.net/net/minecraft
 const GITHUB_REPO: &str = "snzxvss/xrc1-modpack";
 const MODS_RELEASE_TAG: &str = "v1.0.0";
 const INSTALLER_RELEASE_TAG: &str = "installer";
-const CURRENT_VERSION: &str = "1.0.14";
+const CURRENT_VERSION: &str = "1.0.15";
 
 #[derive(Debug, Serialize)]
 struct UpdateInfo {
@@ -115,9 +142,39 @@ async fn select_minecraft_folder() -> Result<String, String> {
 async fn analyze_mods(minecraft_path: String) -> Result<ModAnalysis, String> {
     write_log(&format!("Analizando mods en: {}", minecraft_path));
 
-    // Obtener mods dinÃ¡micamente desde GitHub
-    write_log(&format!("Obteniendo lista de mods desde GitHub: {}/releases/tag/{}", GITHUB_REPO, MODS_RELEASE_TAG));
     let client = Client::new();
+
+    // 1. Descargar mods-metadata.json desde GitHub Release
+    write_log("Descargando mods-metadata.json desde GitHub...");
+    let metadata_url = format!(
+        "https://github.com/{}/releases/download/{}/mods-metadata.json",
+        GITHUB_REPO, MODS_RELEASE_TAG
+    );
+
+    let metadata_json = client
+        .get(&metadata_url)
+        .header("User-Agent", "XRC1-Mod-Installer")
+        .send()
+        .map_err(|e| {
+            write_log(&format!("ERROR: Error descargando metadata: {}", e));
+            format!("Error descargando metadata: {}", e)
+        })?
+        .text()
+        .map_err(|e| {
+            write_log(&format!("ERROR: Error leyendo metadata: {}", e));
+            format!("Error leyendo metadata: {}", e)
+        })?;
+
+    let config: ModsConfig = serde_json::from_str(&metadata_json)
+        .map_err(|e| {
+            write_log(&format!("ERROR: Error parseando metadata JSON: {}", e));
+            format!("Error parseando metadata JSON: {}", e)
+        })?;
+
+    write_log(&format!("Metadata cargada: {} mods totales", config.mods.len()));
+
+    // 2. Obtener lista de assets desde GitHub API
+    write_log(&format!("Obteniendo assets desde GitHub: {}/releases/tag/{}", GITHUB_REPO, MODS_RELEASE_TAG));
     let github_api_url = format!(
         "https://api.github.com/repos/{}/releases/tags/{}",
         GITHUB_REPO, MODS_RELEASE_TAG
@@ -137,21 +194,42 @@ async fn analyze_mods(minecraft_path: String) -> Result<ModAnalysis, String> {
             format!("Error parseando respuesta de GitHub: {}", e)
         })?;
 
-    // Convertir assets de GitHub a lista de mods
+    // 3. Filtrar mods: solo "client" y "both"
     let all_mods: Vec<ModInfo> = release
         .assets
         .iter()
         .filter(|asset| asset.name.ends_with(".jar"))
-        .map(|asset| ModInfo {
-            name: asset.name.trim_end_matches(".jar").to_string(),
-            file_name: asset.name.clone(),
-            download_url: asset.browser_download_url.clone(),
-            version: release.tag_name.clone(),
-            required: true,
+        .filter_map(|asset| {
+            // Buscar metadata del mod
+            if let Some(metadata) = config.mods.iter().find(|m| m.filename == asset.name) {
+                // Solo incluir mods de cliente o ambos lados
+                if metadata.side == "client" || metadata.side == "both" {
+                    Some(ModInfo {
+                        name: asset.name.trim_end_matches(".jar").to_string(),
+                        file_name: asset.name.clone(),
+                        download_url: asset.browser_download_url.clone(),
+                        version: release.tag_name.clone(),
+                        required: true,
+                        side: metadata.side.clone(),
+                    })
+                } else {
+                    None
+                }
+            } else {
+                // Si no tiene metadata, asumir "both"
+                Some(ModInfo {
+                    name: asset.name.trim_end_matches(".jar").to_string(),
+                    file_name: asset.name.clone(),
+                    download_url: asset.browser_download_url.clone(),
+                    version: release.tag_name.clone(),
+                    required: true,
+                    side: "both".to_string(),
+                })
+            }
         })
         .collect();
 
-    write_log(&format!("Se encontraron {} mods en GitHub", all_mods.len()));
+    write_log(&format!("Mods para cliente: {} de {} totales", all_mods.len(), release.assets.iter().filter(|a| a.name.ends_with(".jar")).count()));
 
     // Verificar carpeta mods
     let mods_folder = PathBuf::from(&minecraft_path).join("mods");

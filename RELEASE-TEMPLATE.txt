@@ -8,11 +8,10 @@ Incluye instalador de Forge y deteccion automatica de mods faltantes.
 
 ### Novedades v{VERSION}
 
-- **Arreglado:** Boton de minimizar ahora funciona correctamente
-- **Arreglado:** Error al cancelar actualizacion ya no causa excepciones
-- **Mejorado:** Sistema de herramientas con menus interactivos (.bat)
-- **Agregado:** Plantilla editable para releases con actualizacion automatica
-- **Mejorado:** Gestion de mods con soporte para rutas absolutas y relativas
+- **Importante:** Sistema de mods por lado (client/server/both)
+- **Mejorado:** Solo descarga mods de cliente necesarios (90 de 97 mods)
+- **Optimizado:** 7 mods server-only no se descargan en clientes
+- **Arreglado:** Previene errores por mods incompatibles en cliente
 
 ---
 

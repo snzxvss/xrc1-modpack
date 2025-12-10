@@ -32,6 +32,30 @@ function List-Mods {
     Write-Host ""
 }
 
+function Update-Metadata {
+    Write-Host ""
+    Write-Host "Regenerando mods-metadata.json..." -ForegroundColor Cyan
+
+    # Regenerar metadata
+    & powershell.exe -ExecutionPolicy Bypass -File generate-mods-metadata.ps1 | Out-Null
+
+    if (Test-Path "mods-metadata.json") {
+        # Eliminar metadata anterior si existe
+        gh release delete-asset $RELEASE_TAG "mods-metadata.json" --yes 2>&1 | Out-Null
+
+        # Subir nuevo metadata
+        Write-Host "[>] Subiendo metadata actualizado..." -ForegroundColor Yellow
+        gh release upload $RELEASE_TAG "mods-metadata.json"
+
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "[OK] Metadata actualizado" -ForegroundColor Green
+        } else {
+            Write-Host "[X] ERROR: Fallo al subir metadata" -ForegroundColor Red
+        }
+    }
+    Write-Host ""
+}
+
 function Upload-Mods {
     param([string[]]$ModFiles)
 
@@ -76,6 +100,12 @@ function Upload-Mods {
 
     Write-Host ""
     Write-Host "Resultado: $uploaded subidos, $failed fallidos"
+
+    # Actualizar metadata automaticamente
+    if ($uploaded -gt 0) {
+        Update-Metadata
+    }
+
     Write-Host ""
 }
 
@@ -109,6 +139,12 @@ function Delete-Mods {
 
     Write-Host ""
     Write-Host "Resultado: $deleted eliminados, $failed fallidos"
+
+    # Actualizar metadata automaticamente
+    if ($deleted -gt 0) {
+        Update-Metadata
+    }
+
     Write-Host ""
 }
 
