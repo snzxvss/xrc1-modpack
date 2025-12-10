@@ -85,7 +85,7 @@ const FORGE_DOWNLOAD_URL: &str = "https://maven.minecraftforge.net/net/minecraft
 const GITHUB_REPO: &str = "snzxvss/xrc1-modpack";
 const MODS_RELEASE_TAG: &str = "v1.0.0";
 const INSTALLER_RELEASE_TAG: &str = "installer";
-const CURRENT_VERSION: &str = "1.0.15";
+const CURRENT_VERSION: &str = "1.0.16";
 
 #[derive(Debug, Serialize)]
 struct UpdateInfo {
