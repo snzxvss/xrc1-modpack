@@ -102,19 +102,45 @@ if (-not $NoUpload) {
         foreach ($mod in $toUpload) {
             $modPath = Join-Path $LOCAL_MODS $mod
 
-            # Verificar si el archivo ya existe con nombre sanitizado
-            $sanitizedName = $mod -replace '[\[\] ]', '.'
-            if ($githubModFiles -contains $sanitizedName) {
-                Write-Host "  [~] Ya existe (con nombre sanitizado): $mod -> $sanitizedName" -ForegroundColor Yellow
+            # GitHub transforma nombres: quita puntos iniciales y reduce puntos dobles
+            # Ejemplo: ".1.20.1..SecurityCraft" -> "default.1.20.1.SecurityCraft"
+            $githubTransformed = $mod
+            if ($githubTransformed -match '^\.') {
+                $githubTransformed = "default" + $githubTransformed
+            }
+            $githubTransformed = $githubTransformed -replace '\.\.', '.'
+
+            # Verificar si ya existe con nombre transformado
+            if ($githubModFiles -contains $githubTransformed) {
+                Write-Host "  [~] Ya existe en GitHub: $mod (como $githubTransformed)" -ForegroundColor Yellow
                 continue
             }
 
-            Write-Host "  [>] Subiendo: $mod" -ForegroundColor Yellow
-            & $GH_PATH release upload $RELEASE_TAG "`"$modPath`""
-            if ($LASTEXITCODE -eq 0) {
-                Write-Host "  [OK] Subido: $mod" -ForegroundColor Green
-            } else {
-                Write-Host "  [X] ERROR: Fallo $mod" -ForegroundColor Red
+            # Verificar variantes comunes
+            $variants = @(
+                $mod,
+                ($mod -replace '[\[\] ]', '.'),
+                ($mod -replace '!', ''),
+                ($mod -replace '[\[\] !]', '.')
+            )
+
+            $exists = $false
+            foreach ($variant in $variants) {
+                if ($githubModFiles -contains $variant) {
+                    Write-Host "  [~] Ya existe en GitHub: $mod (como $variant)" -ForegroundColor Yellow
+                    $exists = $true
+                    break
+                }
+            }
+
+            if (-not $exists) {
+                Write-Host "  [>] Subiendo: $mod" -ForegroundColor Yellow
+                & $GH_PATH release upload $RELEASE_TAG "`"$modPath`""
+                if ($LASTEXITCODE -eq 0) {
+                    Write-Host "  [OK] Subido: $mod" -ForegroundColor Green
+                } else {
+                    Write-Host "  [X] ERROR: Fallo $mod" -ForegroundColor Red
+                }
             }
         }
 
